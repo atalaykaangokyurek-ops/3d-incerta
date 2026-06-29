@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D InCertA</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1018;
+      --surface: rgba(12, 18, 26, 0.92);
+      --surface-strong: rgba(10, 14, 20, 0.96);
+      --accent: #4fc3f7;
+      --accent-strong: #2bb5e9;
+      --text: #f4f7fb;
+      --muted: #a3adc6;
+      --border: rgba(255, 255, 255, 0.14);
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(180deg, rgba(8, 12, 18, 0.92) 0%, rgba(8, 12, 18, 0.90) 100%),
+        url("https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=1600&q=80") center/cover no-repeat;
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+
+    .page {
+      width: min(1200px, 100%);
+      backdrop-filter: blur(18px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 32px;
+      padding: 40px 48px;
+      align-items: center;
+    }
+
+    .hero-title {
+      max-width: 720px;
+    }
+
+    .hero-title h1 {
+      font-size: clamp(2.75rem, 4vw, 4.5rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      margin-bottom: 18px;
+    }
+
+    .hero-title p {
+      font-size: 1.05rem;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 24px;
+      max-width: 600px;
+    }
+
+    .clock-card {
+      padding: 24px 28px;
+      border-radius: 24px;
+      background: rgba(18, 26, 38, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      min-width: 240px;
+      text-align: center;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+
+    .clock-card h2 {
+      font-size: 0.95rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .clock-card .time,
+    .clock-card .date {
+      display: block;
+      font-size: clamp(1.55rem, 2vw, 2.4rem);
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 0.6rem;
+    }
+
+    .clock-card .small {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 28px;
+      padding: 0 48px 48px;
+    }
+
+    .card {
+      background: var(--surface-strong);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+      padding: 28px;
+    }
+
+    .card h3 {
+      margin-bottom: 20px;
+      color: var(--text);
+      font-size: 1.25rem;
+    }
+
+    .card p {
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 18px;
+    }
+
+    .field {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .field input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(79, 195, 247, 0.12);
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: flex-start;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      min-width: 160px;
+      border: none;
+      border-radius: 999px;
+      padding: 14px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.22s ease, background-color 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: #061017;
+      box-shadow: 0 18px 28px rgba(79, 195, 247, 0.24);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .theme-btn {
+      width: 100%;
+      margin-top: 18px;
+    }
+
+    .action-btn {
+      min-width: auto;
+      padding: 10px 14px;
+      font-size: 0.88rem;
+    }
+
+    .table-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .status {
+      margin-top: 14px;
+      color: #86e3ff;
+      font-size: 0.95rem;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      margin-top: 22px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 520px;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.95rem;
+    }
+
+    th {
+      text-transform: uppercase;
+      font-size: 0.82rem;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    td {
+      color: var(--text);
+    }
+
+    .result-card {
+      display: grid;
+      gap: 14px;
+    }
+
+    .result-panel {
+      padding: 20px;
+      border-radius: 18px;
+      background: rgba(16, 24, 36, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .result-panel strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--accent);
+    }
+
+    .result-panel span {
+      display: block;
+      color: var(--text);
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .help-text {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    footer {
+      padding: 26px 48px 34px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--muted);
+      gap: 16px;
+    }
+
+    .contact {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .contact span {
+      font-size: 0.96rem;
+    }
+
+    .contact strong {
+      color: var(--text);
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 32px 28px 30px;
+      }
+
+      .content {
+        grid-template-columns: 1fr;
+        padding: 0 28px 32px;
+      }
+
+      footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 16px;
+      }
+
+      .page {
+        border-radius: 22px;
+      }
+
+      .hero-title h1 {
+        font-size: 2.5rem;
+      }
+
+      .clock-card {
+        min-width: auto;
+        width: 100%;
+      }
+
+      .card {
+        padding: 22px;
+      }
+
+      .field input {
+        padding: 12px 14px;
+      }
+
+      th,
+      td {
+        padding: 12px 12px;
+      }
+    }
+
+    body.light {
+      color-scheme: light;
+      background: linear-gradient(180deg, rgba(244, 247, 251, 0.94), rgba(244, 247, 251, 0.92) 100%),
+        url("https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=1600&q=80") center/cover no-repeat;
+    }
+
+    body.light .page {
+      background: rgba(255, 255, 255, 0.86);
+      border-color: rgba(15, 23, 42, 0.12);
+    }
+
+    body.light .card,
+    body.light .clock-card,
+    body.light .result-panel {
+      background: rgba(255, 255, 255, 0.92);
+      border-color: rgba(15, 23, 42, 0.08);
+    }
+
+    body.light .field input {
+      background: rgba(248, 250, 252, 0.96);
+      color: #0f172a;
+      border-color: rgba(15, 23, 42, 0.1);
+    }
+
+    body.light .btn-secondary {
+      background: rgba(15, 23, 42, 0.08);
+      color: #0f172a;
+      border-color: rgba(15, 23, 42, 0.12);
+    }
+
+    body.light .hero-title p,
+    body.light .contact strong,
+    body.light td {
+      color: #475569;
+    }
+
+    body.light .clock-card h2,
+    body.light .clock-card .small,
+    body.light th {
+      color: #334155;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="hero-title">
+        <h1>Atalay Kaan Gökyürek</h1>
+        <p>
+          Kurumsal araç takip ve bakım çözümleri için modern, güvenilir ve akıllı bir deneyim. Verileri kaydedin,
+          kontrol edin ve yakıt kullanımınızı gerçek zamanlı hesaplayın.
+        </p>
+      </div>
+      <div class="clock-card">
+        <h2>Canlı Saat & Takvim</h2>
+        <span class="time" id="liveTime">--:--:--</span>
+        <span class="date" id="liveDate">--</span>
+        <span class="small" id="liveWeekday">--</span>
+        <button class="btn btn-secondary theme-btn" id="themeToggle">Tema Değiştir</button>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="card">
+        <h3>Araç Bilgisi Kaydı</h3>
+        <p>Formu doldurun, "Kaydet"e basın ve veriler tarayıcı hafızasında saklansın.</p>
+        <div class="field">
+          <label for="plate">Araç Plakası</label>
+          <input type="text" id="plate" placeholder="34 ABC 123" />
+        </div>
+        <div class="field">
+          <label for="inspection">Muayene Tarihi</label>
+          <input type="date" id="inspection" />
+        </div>
+        <div class="field">
+          <label for="company">Ait Olduğu Firma</label>
+          <input type="text" id="company" placeholder="Firma adı" />
+        </div>
+        <div class="field">
+          <label for="mileage">Kilometre Bilgisi</label>
+          <input type="number" id="mileage" placeholder="Örn. 125000" />
+        </div>
+        <div class="button-row">
+          <button class="btn btn-primary" id="saveVehicle">Kaydet</button>
+          <button class="btn btn-secondary" id="cancelEdit" style="display:none;">İptal</button>
+          <button class="btn btn-secondary" id="clearVehicles">Temizle</button>
+        </div>
+        <p class="status" id="saveStatus">Veriler tarayıcı hafızasında saklanıyor.</p>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Plaka</th>
+                <th>Muayene Tarihi</th>
+                <th>Firma</th>
+                <th>Kilometre</th>
+                <th>Eylem</th>
+              </tr>
+            </thead>
+            <tbody id="vehicleList">
+              <!-- Kayıtlı araçlar burada listelenecek -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>Yakıt Hesaplama Modülü</h3>
+        <p class="help-text">Mesafeyi ve ortalama tüketimi girin. Hesapla, sonuçları aşağıda görün.</p>
+
+        <div class="field">
+          <label for="distance">Gidilen Yol (km)</label>
+          <input type="number" id="distance" placeholder="Örn. 120" />
+        </div>
+        <div class="field">
+          <label for="consumption">Ortalama Yakıt Tüketimi (L/100km)</label>
+          <input type="number" step="0.1" id="consumption" placeholder="Örn. 7.8" />
+        </div>
+        <div class="field">
+          <label for="fuelPrice">Litre Başına Yakıt Fiyatı (TL)</label>
+          <input type="number" step="0.01" id="fuelPrice" placeholder="Örn. 35.50" />
+        </div>
+        <div class="button-row">
+          <button class="btn btn-primary" id="calculateFuel">Hesapla</button>
+          <button class="btn btn-secondary" id="resetFuel">Sıfırla</button>
+        </div>
+
+        <div class="result-card">
+          <div class="result-panel">
+            <strong>Toplam Yakıt Tüketimi</strong>
+            <span id="fuelUsage">0.00 L</span>
+          </div>
+          <div class="result-panel">
+            <strong>Tahmini Yakıt Maliyeti</strong>
+            <span id="fuelCost">0.00 TL</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="contact">
+        <span><strong>İletişim:</strong> Atalay Kaan Gökyürek</span>
+        <span><strong>Telefon:</strong> 05464418062</span>
+        <span><strong>E-posta:</strong> agokyurek@3d-incerta.com</span>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const liveTime = document.getElementById('liveTime');
+    const liveDate = document.getElementById('liveDate');
+    const liveWeekday = document.getElementById('liveWeekday');
+    const vehicleList = document.getElementById('vehicleList');
+    const saveStatus = document.getElementById('saveStatus');
+
+    const plateInput = document.getElementById('plate');
+    const inspectionInput = document.getElementById('inspection');
+    const companyInput = document.getElementById('company');
+    const mileageInput = document.getElementById('mileage');
+    const saveVehicleButton = document.getElementById('saveVehicle');
+    const clearVehiclesButton = document.getElementById('clearVehicles');
+
+    const distanceInput = document.getElementById('distance');
+    const consumptionInput = document.getElementById('consumption');
+    const fuelPriceInput = document.getElementById('fuelPrice');
+    const calculateFuelButton = document.getElementById('calculateFuel');
+    const resetFuelButton = document.getElementById('resetFuel');
+    const fuelUsage = document.getElementById('fuelUsage');
+    const fuelCost = document.getElementById('fuelCost');
+    const themeToggle = document.getElementById('themeToggle');
+    const cancelEditButton = document.getElementById('cancelEdit');
+
+    let editingIndex = null;
+
+    function updateClock() {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString('tr-TR', { hour12: false });
+      const dateString = now.toLocaleDateString('tr-TR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      const weekdayString = now.toLocaleDateString('tr-TR', { weekday: 'long' });
+
+      liveTime.textContent = timeString;
+      liveDate.textContent = dateString;
+      liveWeekday.textContent = weekdayString.charAt(0).toUpperCase() + weekdayString.slice(1);
+    }
+
+    function getStoredVehicles() {
+      const stored = localStorage.getItem('vehicleRecords');
+      return stored ? JSON.parse(stored) : [];
+    }
+
+    function saveVehicles(records) {
+      localStorage.setItem('vehicleRecords', JSON.stringify(records));
+    }
+
+    function renderVehicleList() {
+      const records = getStoredVehicles();
+      if (!records.length) {
+        vehicleList.innerHTML = '<tr><td colspan="5" style="color: var(--muted); padding: 18px 16px;">Kayıtlı araç bulunamadı.</td></tr>';
+        return;
+      }
+
+      vehicleList.innerHTML = records
+        .map((item, index) => {
+          return `
+            <tr>
+              <td>${item.plate || '—'}</td>
+              <td>${item.inspection || '—'}</td>
+              <td>${item.company || '—'}</td>
+              <td>${item.mileage || '—'}</td>
+              <td class="table-actions">
+                <button class="btn btn-secondary action-btn" data-action="edit" data-index="${index}">Düzenle</button>
+                <button class="btn btn-secondary action-btn" data-action="delete" data-index="${index}">Sil</button>
+              </td>
+            </tr>
+          `;
+        })
+        .join('');
+    }
+
+    function showStatus(message, success = true) {
+      saveStatus.textContent = message;
+      saveStatus.style.color = success ? '#86e3ff' : '#ff8f8f';
+    }
+
+    function resetForm() {
+      plateInput.value = '';
+      inspectionInput.value = '';
+      companyInput.value = '';
+      mileageInput.value = '';
+      editingIndex = null;
+      cancelEditButton.style.display = 'none';
+      saveVehicleButton.textContent = 'Kaydet';
+    }
+
+    function loadTheme() {
+      const theme = localStorage.getItem('siteTheme') || 'dark';
+      document.body.classList.toggle('light', theme === 'light');
+      themeToggle.textContent = theme === 'light' ? 'Koyu Tema' : 'Açık Tema';
+    }
+
+    function saveTheme(theme) {
+      localStorage.setItem('siteTheme', theme);
+      loadTheme();
+    }
+
+    saveVehicleButton.addEventListener('click', () => {
+      const plate = plateInput.value.trim();
+      const inspection = inspectionInput.value;
+      const company = companyInput.value.trim();
+      const mileage = mileageInput.value.trim();
+
+      if (!plate || !inspection || !company || !mileage) {
+        showStatus('Lütfen tüm alanları eksiksiz doldurun.', false);
+        return;
+      }
+
+      const records = getStoredVehicles();
+      if (editingIndex !== null) {
+        records[editingIndex] = { plate, inspection, company, mileage };
+        saveVehicles(records);
+        showStatus('Araç kaydı güncellendi.');
+      } else {
+        records.unshift({ plate, inspection, company, mileage });
+        saveVehicles(records);
+        showStatus('Araç bilgisi kaydedildi.');
+      }
+
+      renderVehicleList();
+      resetForm();
+    });
+
+    cancelEditButton.addEventListener('click', () => {
+      resetForm();
+      showStatus('Düzenleme iptal edildi.');
+    });
+
+    themeToggle.addEventListener('click', () => {
+      const nextTheme = document.body.classList.contains('light') ? 'dark' : 'light';
+      saveTheme(nextTheme);
+    });
+
+    vehicleList.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-action]');
+      if (!button) return;
+
+      const index = Number(button.dataset.index);
+      const action = button.dataset.action;
+      const records = getStoredVehicles();
+
+      if (action === 'edit') {
+        const record = records[index];
+        if (!record) return;
+        plateInput.value = record.plate;
+        inspectionInput.value = record.inspection;
+        companyInput.value = record.company;
+        mileageInput.value = record.mileage;
+        editingIndex = index;
+        cancelEditButton.style.display = 'inline-flex';
+        saveVehicleButton.textContent = 'Güncelle';
+        showStatus('Kayıt düzenlenmek üzere yüklendi.');
+      }
+
+      if (action === 'delete') {
+        if (!confirm('Bu kaydı silmek istediğinize emin misiniz?')) return;
+        records.splice(index, 1);
+        saveVehicles(records);
+        renderVehicleList();
+        showStatus('Araç kaydı silindi.');
+      }
+    });
+
+    clearVehiclesButton.addEventListener('click', () => {
+      if (!confirm('Tüm kayıtlı araçları silmek istediğinize emin misiniz?')) return;
+      localStorage.removeItem('vehicleRecords');
+      renderVehicleList();
+      showStatus('Tüm araç kayıtları silindi.');
+    });
+
+    function formatNumber(value) {
+      return Number(value).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    calculateFuelButton.addEventListener('click', () => {
+      const distance = Number(distanceInput.value);
+      const consumption = Number(consumptionInput.value);
+      const price = Number(fuelPriceInput.value);
+
+      if (!distance || !consumption || !price) {
+        fuelUsage.textContent = 'Veriler eksik.';
+        fuelCost.textContent = 'Lütfen tüm alanları doldurun.';
+        return;
+      }
+
+      const liters = (distance * consumption) / 100;
+      const totalCost = liters * price;
+
+      fuelUsage.textContent = `${formatNumber(liters)} L`;
+      fuelCost.textContent = `${formatNumber(totalCost)} TL`;
+    });
+
+    resetFuelButton.addEventListener('click', () => {
+      distanceInput.value = '';
+      consumptionInput.value = '';
+      fuelPriceInput.value = '';
+      fuelUsage.textContent = '0.00 L';
+      fuelCost.textContent = '0.00 TL';
+    });
+
+    window.addEventListener('load', () => {
+      updateClock();
+      renderVehicleList();
+      setInterval(updateClock, 1000);
+    });
+  </script>
+</body>
+</html>
